@@ -1,0 +1,10 @@
+1: .venv\Scripts\activate                  │
+2: uv pip install Django                   │
+3: django-admin startproject sampleProject │
+4: dir                                     │
+5: cd sampleProject                        │
+6: dir                                     │
+7: python manage.py runserver
+
+#we can specify the the port:
+python manage.py runserver 8000
