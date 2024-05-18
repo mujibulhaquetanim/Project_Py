@@ -8,3 +8,17 @@
 
 #we can specify the the port:
 python manage.py runserver 8000
+
+before installing tailwind with hot reload, we need to do some extra work:
+1. python -m ensurepip --upgrade
+2. python -m pip install --upgrade pip
+3. pip install django-tailwind 
+
+#to install hot-reload:
+pip install "django-tailwind[reload]"
+
+#to init tailwind:
+python manage.py tailwind init
+* then, add config to setting.py file.
+
+#
