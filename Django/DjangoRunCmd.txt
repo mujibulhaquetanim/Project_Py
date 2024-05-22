@@ -21,4 +21,5 @@ pip install "django-tailwind[reload]"
 python manage.py tailwind init
 * then, add config to setting.py file.
 
-#
+#LInk:
+https://chaicode.com/blogs/how-to-add-tailwind-to-your-django-project-and-django-admin
