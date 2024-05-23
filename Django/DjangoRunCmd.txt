@@ -23,3 +23,6 @@ python manage.py tailwind init
 
 #LInk:
 https://chaicode.com/blogs/how-to-add-tailwind-to-your-django-project-and-django-admin
+
+#django_extn:
+press (ctrl + ,), then search emmet ->include language->add item->django-html
