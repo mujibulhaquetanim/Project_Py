@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import Body, FastAPI
 
 app = FastAPI()
 
@@ -19,7 +19,8 @@ classBook = [
 
 obj = [
     {"name": "kire"},
-    {"name": "oi"}
+    {"name": "oi"},
+    {"id": 1}
 ]
 
 @app.get("/")
@@ -37,4 +38,10 @@ async def wow():
 #returning list consist of two types of obj, created by class and object notation.
 @app.get("/class")
 async def classBook1():
-    return [obj,classBook];
+    #return [obj,classBook] #passing them in a list where both have separate list inside a new list
+    return obj+classBook #concatenating them into one array instead of separated list.
+
+#post req
+@app.post("/create-book")
+async def create_book(book_req= Body()):
+    Books.append(book_req)
