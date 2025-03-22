@@ -1,13 +1,14 @@
 from fastapi import Body, FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 app = FastAPI()
 
+#Logics:
 Books = [{'title': 'title one', 'author': 'author one', 'category': 'science'},{'title': 'title two', 'author': 'author two', 'category': 'fiction'},{'title': 'title three', 'author': 'author three', 'category': 'thriller'},{'title': 'title four', 'author': 'author four', 'category': 'philosophy'},{'title': 'title five', 'author': 'author five', 'category': 'drama'}];
 
 class Book:
-    id: int
-    name: str
+    id: int = Field(gt=3, lt=7) #greater than, less than
+    name: str = Field(min_length=3, max_length=7)
     
     def __init__(self, id, name):
         self.id = id,
@@ -28,6 +29,8 @@ obj = [
     {"id": 1}
 ]
 
+
+#routes:
 @app.get("/")
 async def first_api():
     return {"message": "Hello from FastAPI! hit '/docs' end-point to see all of the routes"}
