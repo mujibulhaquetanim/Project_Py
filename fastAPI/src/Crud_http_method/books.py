@@ -1,4 +1,5 @@
 from fastapi import Body, FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -11,6 +12,10 @@ class Book:
     def __init__(self, id, name):
         self.id = id,
         self.name = name
+
+class BookValidator(BaseModel):
+    id: int
+    name: str
 
 classBook = [
     Book(1,"book1"),
@@ -45,3 +50,9 @@ async def classBook1():
 @app.post("/create-book")
 async def create_book(book_req= Body()):
     Books.append(book_req)
+
+@app.post("/add-book")
+async def validated_book(books_req= BookValidator):
+    #convert the req data to Book obj/dictionary and ** allows to assign those key-val of the obj/dictionary into keyword arguments that needed to the Book constructor.i.e: key of id, name of the req dictionary/object will be assigned to the id and name of the constructor of the Book class. meaning, ** and .model_dump() converts req to Obj/dict and passed the keys of it to that obj/dict. so, flow is: convert req to dict -> take keys of the dicts and assign them to the Book constructor.
+    new_book=Book(**books_req.model_dump())
+    Books.append(new_book)
