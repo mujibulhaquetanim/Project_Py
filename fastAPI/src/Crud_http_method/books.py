@@ -48,19 +48,22 @@ async def wow():
 @app.get("/class")
 async def classBook1():
     #return [obj,classBook] #passing them in a list where both have separate list inside a new list
-    return obj+classBook #concatenating them into one array instead of separated list.
+    return obj+[book.model_dump() for book in classBook] #concatenating them into one array instead of separated list. Convert objects to dicts before concatenation
 
 #post req
 @app.post("/create-book")
 async def create_book(book_req= Body()):
     Books.append(book_req)
+    return {"message": "Book added successfully"}
 
 @app.post("/add-book")
 async def validated_book(books_req: BookValidator):
     print(type(books_req))
     #convert the req data to Book obj/dictionary and ** allows to assign those key-val of the obj/dictionary into keyword arguments that needed to the Book constructor.i.e: key of id, name of the req dictionary/object will be assigned to the id and name of the constructor of the Book class. meaning, ** and .model_dump() converts req to Obj/dict and passed the keys of it to that obj/dict. so, flow is: convert req to dict -> take keys of the dicts and assign them to the Book constructor.
     new_book=Book(**books_req.model_dump())
+    # Books is storing Book obj and not dict here.
     Books.append(new_book)
+    return {"message": "Book added successfully"}
     
 #find specific book
 @app.get("/books/{id}")
