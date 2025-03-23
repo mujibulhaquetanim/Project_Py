@@ -1,26 +1,27 @@
-from fastapi import Body, FastAPI
+from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 app = FastAPI()
 
 #Logics:
-Books = [{'title': 'title one', 'author': 'author one', 'category': 'science'},{'title': 'title two', 'author': 'author two', 'category': 'fiction'},{'title': 'title three', 'author': 'author three', 'category': 'thriller'},{'title': 'title four', 'author': 'author four', 'category': 'philosophy'},{'title': 'title five', 'author': 'author five', 'category': 'drama'}];
+Books = [{'id':1,'title': 'title one', 'author': 'author one', 'category': 'science'},{'id':2,'title': 'title two', 'author': 'author two', 'category': 'fiction'},{'id':3,'title': 'title three', 'author': 'author three', 'category': 'thriller'},{'id':4,'title': 'title four', 'author': 'author four', 'category': 'philosophy'},{'id':5,'title': 'title five', 'author': 'author five', 'category': 'drama'}];
 
 class Book:
-    id: int = Field(gt=3, lt=7) #greater than, less than
-    name: str = Field(min_length=3, max_length=7)
+    id: int
+    name: str
     
+    #if we use BaseModel then we don't need to initialize as baseModel does it for us.
     def __init__(self, id, name):
         self.id = id,
         self.name = name
 
 class BookValidator(BaseModel):
-    id: int
-    name: str
+    id: int = Field(gt=3, lt=7) #greater than, less than
+    name: str = Field(min_length=3, max_length=7)
 
 classBook = [
-    Book(1,"book1"),
-    Book(2,'book2')
+    BookValidator(id=4, name="book1"),
+    BookValidator(id=5, name="book2")
 ]
 
 obj = [
@@ -59,3 +60,17 @@ async def validated_book(books_req= BookValidator):
     #convert the req data to Book obj/dictionary and ** allows to assign those key-val of the obj/dictionary into keyword arguments that needed to the Book constructor.i.e: key of id, name of the req dictionary/object will be assigned to the id and name of the constructor of the Book class. meaning, ** and .model_dump() converts req to Obj/dict and passed the keys of it to that obj/dict. so, flow is: convert req to dict -> take keys of the dicts and assign them to the Book constructor.
     new_book=Book(**books_req.model_dump())
     Books.append(new_book)
+    
+#find specific book
+@app.get("/books/{id}")
+async def find_book_by_id(id:int):
+    for book in Books:
+        if book["id"] == id:
+            return book
+@app.get("/book-obj/{id}")
+async def find_book_by_id(id: int):
+    for book in classBook:
+        if book.id == id:
+            return book
+    # Raise an exception if the book is not found
+    raise HTTPException(status_code=404, detail="Book not found")
