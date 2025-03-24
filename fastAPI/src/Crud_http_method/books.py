@@ -18,6 +18,15 @@ class Book:
 class BookValidator(BaseModel):
     id: int = Field(gt=3, lt=7) #greater than, less than
     name: str = Field(min_length=3, max_length=7)
+    
+    class Config:
+        # schema_extra (pydantic v1) is used to add extra fields to the schema. this is used to show example of the schema in the docs
+        json_schema_extra = {
+            'example': {
+                "id": 4,
+                "name": "book1"
+            }
+        }
 
 classBook = [
     BookValidator(id=4, name="book1"),
