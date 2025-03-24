@@ -73,7 +73,14 @@ async def validated_book(books_req: BookValidator):
     # Books is storing Book obj and not dict here.
     Books.append(new_book)
     return {"message": "Book added successfully"}
-    
+
+@app.put("/update-book")
+async def update_book(book_req: BookValidator):
+    for i in range(len(Books)):
+        if Books[i]["id"] == book_req.id:
+            Books[i]=book_req
+            return {"message": "Book updated successfully"}
+
 #find specific book
 @app.get("/books/{id}")
 async def find_book_by_id(id:int):
