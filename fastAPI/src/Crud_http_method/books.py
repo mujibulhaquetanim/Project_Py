@@ -81,6 +81,14 @@ async def update_book(book_req: BookValidator):
             Books[i]=book_req
             return {"message": "Book updated successfully"}
 
+@app.delete("/delete-book")
+async def delete_book(book_id: int):
+    for i in range(len(Books)):
+        if Books[i]["id"]== book_id:
+            Books.pop(i)
+            break
+    return {"message": "Book deleted successfully"}
+
 #find specific book
 @app.get("/books/{id}")
 async def find_book_by_id(id:int):
