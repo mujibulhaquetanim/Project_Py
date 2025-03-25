@@ -1,4 +1,4 @@
-from fastapi import Body, FastAPI, HTTPException, Path
+from fastapi import Body, FastAPI, HTTPException, Path, Query
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -9,15 +9,18 @@ Books = [{'id':1,'title': 'title one', 'author': 'author one', 'category': 'scie
 class Book:
     id: int
     name: str
+    rating: int
     
     #if we use BaseModel then we don't need to initialize as baseModel does it for us.
-    def __init__(self, id, name):
+    def __init__(self, id, name, rating=0):
         self.id = id,
         self.name = name
+        self.rating = rating
 
 class BookValidator(BaseModel):
     id: int = Field(gt=0, lt=7) #greater than, less than
     name: str = Field(min_length=3, max_length=7)
+    rating: int = Field(gt=0, lt=7)
     
     class Config:
         # schema_extra (pydantic v1) is used to add extra fields to the schema. this is used to show example of the schema in the docs
@@ -29,8 +32,8 @@ class BookValidator(BaseModel):
         }
 
 classBook = [
-    BookValidator(id=4, name="book1"),
-    BookValidator(id=5, name="book2")
+    BookValidator(id=4, name="book1", rating=4),
+    BookValidator(id=5, name="book2", rating=3)
 ]
 
 obj = [
@@ -49,9 +52,13 @@ async def first_api():
 async def books():
     return Books;
 
-@app.get("/wow")
-async def wow():
-    return "oi kire oi kire"
+@app.get("/rating/")
+async def find_book_by_rating(rating: int = Query(gt=0,lt=7)):
+    books_to_return = []
+    for book in classBook:
+        if book.rating == rating:
+            books_to_return.append(book)
+    return books_to_return
 
 #returning list consist of two types of obj, created by class and object notation.
 @app.get("/class")
@@ -65,10 +72,10 @@ async def create_book(book_req= Body()):
     Books.append(book_req)
     return {"message": "Book added successfully"}
 
+"""convert the req data to Book obj/dictionary and ** allows to assign those key-val of the obj/dictionary into keyword arguments that needed to the Book constructor.i.e: key of id, name of the req dictionary/object will be assigned to the id and name of the constructor of the Book class. meaning, ** and .model_dump() converts req to Obj/dict and passed the keys of it to that obj/dict. so, flow is: convert req to dict -> take keys of the dicts and assign them to the Book constructor."""
 @app.post("/add-book")
 async def validated_book(books_req: BookValidator):
     print(type(books_req))
-    #convert the req data to Book obj/dictionary and ** allows to assign those key-val of the obj/dictionary into keyword arguments that needed to the Book constructor.i.e: key of id, name of the req dictionary/object will be assigned to the id and name of the constructor of the Book class. meaning, ** and .model_dump() converts req to Obj/dict and passed the keys of it to that obj/dict. so, flow is: convert req to dict -> take keys of the dicts and assign them to the Book constructor.
     new_book=Book(**books_req.model_dump())
     # Books is storing Book obj and not dict here.
     Books.append(new_book)
