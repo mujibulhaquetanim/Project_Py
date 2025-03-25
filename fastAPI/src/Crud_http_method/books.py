@@ -27,7 +27,8 @@ class BookValidator(BaseModel):
         json_schema_extra = {
             'example': {
                 "id": 4,
-                "name": "book1"
+                "name": "book1",
+                "rating": 4
             }
         }
 
@@ -83,18 +84,26 @@ async def validated_book(books_req: BookValidator):
 
 @app.put("/update-book")
 async def update_book(book_req: BookValidator):
-    for i in range(len(Books)):
-        if Books[i]["id"] == book_req.id:
+    book_changed = False
+    for i in range(len(classBook)):
+        if classBook[i].id == book_req.id:
             Books[i]=book_req
+            book_changed = True
             return {"message": "Book updated successfully"}
+    if not book_changed:
+        raise HTTPException(status_code=404, detail="Book not found")
 
 # without defining path parameter delete would work as well in the form of query parameter.
 @app.delete("/delete-book/{book_id}") #book_id is the path parameter
 async def delete_book(book_id: int):
+    book_deleted = False
     for i in range(len(Books)):
-        if Books[i]["id"]== book_id:
+        if Books[i]["id"] == book_id:
             Books.pop(i)
+            book_deleted = True
             break
+    if not book_deleted:
+        raise HTTPException(status_code=404, detail="Book not found")
     return {"message": "Book deleted successfully"}
 
 #find specific book
@@ -103,6 +112,8 @@ async def find_book_by_id(id:int = Path(gt=0,lt=7)):
     for book in Books:
         if book["id"] == id:
             return book
+    # Raise an exception if the book is not found
+    raise HTTPException(status_code=404, detail="Book not found")
 
 @app.get("/book-obj/{id}")
 async def find_book_by_id(id: int = Path(gt=0,lt=7)):
