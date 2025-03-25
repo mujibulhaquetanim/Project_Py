@@ -1,5 +1,6 @@
 from fastapi import Body, FastAPI, HTTPException, Path, Query
 from pydantic import BaseModel, Field
+from starlette import status
 
 app = FastAPI()
 
@@ -45,15 +46,15 @@ obj = [
 
 
 #routes:
-@app.get("/")
+@app.get("/", status_code=status.HTTP_200_OK)
 async def first_api():
     return {"message": "Hello from FastAPI! hit '/docs' end-point to see all of the routes"}
 
-@app.get("/books")
+@app.get("/books", status_code=status.HTTP_200_OK)
 async def books():
     return Books;
 
-@app.get("/rating/")
+@app.get("/rating/", status_code=status.HTTP_200_OK)
 async def find_book_by_rating(rating: int = Query(gt=0,lt=7)):
     books_to_return = []
     for book in classBook:
@@ -62,19 +63,19 @@ async def find_book_by_rating(rating: int = Query(gt=0,lt=7)):
     return books_to_return
 
 #returning list consist of two types of obj, created by class and object notation.
-@app.get("/class")
+@app.get("/class", status_code=status.HTTP_200_OK)
 async def classBook1():
     #return [obj,classBook] #passing them in a list where both have separate list inside a new list
     return obj+[book.model_dump() for book in classBook] #concatenating them into one array instead of separated list. Convert objects to dicts before concatenation
 
 #post req
-@app.post("/create-book")
+@app.post("/create-book", status_code=status.HTTP_201_CREATED)
 async def create_book(book_req= Body()):
     Books.append(book_req)
     return {"message": "Book added successfully"}
 
 """convert the req data to Book obj/dictionary and ** allows to assign those key-val of the obj/dictionary into keyword arguments that needed to the Book constructor.i.e: key of id, name of the req dictionary/object will be assigned to the id and name of the constructor of the Book class. meaning, ** and .model_dump() converts req to Obj/dict and passed the keys of it to that obj/dict. so, flow is: convert req to dict -> take keys of the dicts and assign them to the Book constructor."""
-@app.post("/add-book")
+@app.post("/add-book", status_code=status.HTTP_201_CREATED)
 async def validated_book(books_req: BookValidator):
     print(type(books_req))
     new_book=Book(**books_req.model_dump())
@@ -82,7 +83,7 @@ async def validated_book(books_req: BookValidator):
     Books.append(new_book)
     return {"message": "Book added successfully"}
 
-@app.put("/update-book")
+@app.put("/update-book", status_code=status.HTTP_204_NO_CONTENT)
 async def update_book(book_req: BookValidator):
     book_changed = False
     for i in range(len(classBook)):
@@ -94,7 +95,7 @@ async def update_book(book_req: BookValidator):
         raise HTTPException(status_code=404, detail="Book not found")
 
 # without defining path parameter delete would work as well in the form of query parameter.
-@app.delete("/delete-book/{book_id}") #book_id is the path parameter
+@app.delete("/delete-book/{book_id}", status_code=status.HTTP_204_NO_CONTENT) #book_id is the path parameter
 async def delete_book(book_id: int):
     book_deleted = False
     for i in range(len(Books)):
@@ -107,7 +108,7 @@ async def delete_book(book_id: int):
     return {"message": "Book deleted successfully"}
 
 #find specific book
-@app.get("/books/{id}")
+@app.get("/books/{id}", status_code=status.HTTP_200_OK)
 async def find_book_by_id(id:int = Path(gt=0,lt=7)):
     for book in Books:
         if book["id"] == id:
@@ -115,7 +116,7 @@ async def find_book_by_id(id:int = Path(gt=0,lt=7)):
     # Raise an exception if the book is not found
     raise HTTPException(status_code=404, detail="Book not found")
 
-@app.get("/book-obj/{id}")
+@app.get("/book-obj/{id}", status_code=status.HTTP_200_OK)
 async def find_book_by_id(id: int = Path(gt=0,lt=7)):
     for book in classBook:
         if book.id == id:
