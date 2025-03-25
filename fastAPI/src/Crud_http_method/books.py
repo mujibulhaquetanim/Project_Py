@@ -81,7 +81,8 @@ async def update_book(book_req: BookValidator):
             Books[i]=book_req
             return {"message": "Book updated successfully"}
 
-@app.delete("/delete-book")
+# without defining path parameter delete would work as well in the form of query parameter.
+@app.delete("/delete-book/{book_id}") #book_id is the path parameter
 async def delete_book(book_id: int):
     for i in range(len(Books)):
         if Books[i]["id"]== book_id:
@@ -95,6 +96,7 @@ async def find_book_by_id(id:int):
     for book in Books:
         if book["id"] == id:
             return book
+
 @app.get("/book-obj/{id}")
 async def find_book_by_id(id: int):
     for book in classBook:
